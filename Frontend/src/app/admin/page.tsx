@@ -63,7 +63,17 @@ export default function AdminDashboard() {
   }, [apiFetch, canViewStats]);
 
   const greeting = useMemo(() => getGreeting(), []);
-  const recentFeedback = (stats?.recentFeedback as Record<string, unknown>[] | undefined) ?? [];
+  interface FeedbackItem {
+    _id: string;
+    name: string;
+    message: string;
+    type: string;
+    createdAt?: string;
+  }
+  
+  const recentFeedback: FeedbackItem[] =
+    (stats?.recentFeedback as FeedbackItem[] | undefined) ?? [];
+
 
   const statCards = [
     {
@@ -250,35 +260,46 @@ export default function AdminDashboard() {
             </div>
           ) : recentFeedback.length > 0 ? (
             <ul className="space-y-3 flex-1">
-              {recentFeedback.map((fb) => {
-                const initials = getInitials(fb.name as string);
-                const type = fb.type as string;
-                return (
-                  <li
-                    key={fb._id as string}
-                    className="flex gap-3 p-3 sm:p-4 rounded-xl border border-border bg-background hover:border-primary/30 transition-colors"
-                  >
-                    <div
-                      className="w-10 h-10 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0"
-                      aria-hidden
-                    >
-                      {initials}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <p className="font-semibold text-sm text-primary-dark">{fb.name as string}</p>
-                        <span className="text-[11px] font-semibold uppercase tracking-wide bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                          {FEEDBACK_TYPE_LABELS[type] || type}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted line-clamp-2 leading-relaxed">{fb.message as string}</p>
-                      {fb.createdAt && (
-                        <p className="text-xs text-muted mt-1.5">{formatDate(fb.createdAt as string)}</p>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
+              {recentFeedback.map((fb: FeedbackItem) => {
+  const initials = getInitials(fb.name);
+  const type = fb.type;
+
+  return (
+    <li
+      key={fb._id}
+      className="flex gap-3 p-3 sm:p-4 rounded-xl border border-border bg-background hover:border-primary/30 transition-colors"
+    >
+      <div
+        className="w-10 h-10 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0"
+        aria-hidden
+      >
+        {initials}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2 mb-1">
+          <p className="font-semibold text-sm text-primary-dark">
+            {fb.name}
+          </p>
+
+          <span className="text-[11px] font-semibold uppercase tracking-wide bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+            {FEEDBACK_TYPE_LABELS[type] || type}
+          </span>
+        </div>
+
+        <p className="text-sm text-muted line-clamp-2 leading-relaxed">
+          {fb.message}
+        </p>
+
+        {fb.createdAt ? (
+          <p className="text-xs text-muted mt-1.5">
+            {formatDate(fb.createdAt)}
+          </p>
+        ) : null}
+      </div>
+    </li>
+  );
+})}
             </ul>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-10 px-4 bg-background rounded-xl border border-dashed border-border">
