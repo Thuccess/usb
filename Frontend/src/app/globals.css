@@ -1,0 +1,403 @@
+@import "tailwindcss";
+
+/* Palette: white, blue, black only */
+:root {
+  --white: #ffffff;
+  --black: #0f172a;
+  --blue: #1e40af;
+  --blue-dark: #1e3a8a;
+  --breaking: #dc2626;
+
+  --background: var(--white);
+  --foreground: var(--black);
+  --primary: var(--blue);
+  --primary-dark: var(--blue-dark);
+  --muted: color-mix(in srgb, var(--black) 65%, transparent);
+  --border: color-mix(in srgb, var(--black) 12%, transparent);
+  --card: var(--white);
+
+  /* Legacy aliases — map to blue palette */
+  --accent: var(--blue);
+  --accent-light: color-mix(in srgb, var(--blue) 10%, var(--white));
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Text on light (white) backgrounds */
+.text-on-light {
+  color: var(--black);
+}
+
+.text-on-light-muted {
+  color: var(--muted);
+}
+
+.text-on-light-accent {
+  color: var(--blue);
+}
+
+/* Text on dark (blue/black) backgrounds */
+.text-on-dark {
+  color: var(--white);
+}
+
+.text-on-dark-muted {
+  color: color-mix(in srgb, var(--white) 75%, transparent);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.hero-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 100%, color-mix(in srgb, var(--blue) 25%, transparent), transparent),
+    radial-gradient(ellipse 50% 45% at 85% 15%, color-mix(in srgb, white 10%, transparent), transparent),
+    radial-gradient(ellipse 40% 35% at 60% 60%, color-mix(in srgb, var(--black) 30%, transparent), transparent);
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+}
+
+.hero-slide-active {
+  opacity: 1;
+}
+
+.hero-slide img {
+  transform: scale(1);
+  transition: transform 8s ease-out;
+}
+
+.hero-slide-active img {
+  transform: scale(1.06);
+}
+
+.hero-overlay {
+  background:
+    linear-gradient(105deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.78) 42%, rgba(30, 58, 138, 0.55) 100%),
+    linear-gradient(to top, rgba(15, 23, 42, 0.5) 0%, transparent 45%);
+}
+
+.page-hero-overlay {
+  background:
+    linear-gradient(115deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 58, 138, 0.72) 55%, rgba(30, 64, 175, 0.65) 100%),
+    linear-gradient(to top, rgba(15, 23, 42, 0.35) 0%, transparent 50%);
+}
+
+.page-hero-breadcrumb a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.page-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--white) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--white) 22%, transparent);
+  color: var(--white);
+  backdrop-filter: blur(4px);
+}
+
+.hero-stat-strip {
+  background: color-mix(in srgb, var(--white) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--white) 18%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.hero-cta-card {
+  background: color-mix(in srgb, var(--white) 96%, transparent);
+  border: 1px solid color-mix(in srgb, var(--white) 40%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-cta-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--blue);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--white) 35%, transparent);
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.hero-dot-active {
+  width: 28px;
+  background: var(--white);
+}
+
+.section-band-white {
+  background: var(--white);
+  color: var(--black);
+}
+
+.section-band-muted {
+  background: color-mix(in srgb, var(--blue) 4%, var(--white));
+  color: var(--black);
+}
+
+.content-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  color: var(--black);
+}
+
+.content-card-hover {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: all 0.2s ease;
+  color: var(--black);
+}
+
+.content-card-hover:hover {
+  border-color: var(--blue);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.page-stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  color: var(--black);
+}
+
+.prose-content {
+  color: var(--black);
+}
+
+.prose-content h2 {
+  @apply text-xl font-bold mt-6 mb-3;
+  color: var(--blue-dark);
+}
+
+.prose-content p {
+  @apply mb-4 leading-relaxed;
+  color: var(--muted);
+}
+
+.prose-content ul {
+  @apply list-disc ps-6 mb-4;
+  color: var(--black);
+}
+
+.prose-content a {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-content a:hover {
+  color: var(--blue-dark);
+}
+
+.prose-content strong {
+  font-weight: 600;
+  color: var(--black);
+}
+
+.prose-content code {
+  font-size: 0.875em;
+  background: color-mix(in srgb, var(--blue) 8%, var(--white));
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+}
+
+.breaking-badge {
+  background: var(--breaking);
+  color: var(--white);
+}
+
+[dir="rtl"] .prose-content ul {
+  @apply pe-6 ps-0;
+}
+
+.ticker-scroll {
+  animation: ticker 30s linear infinite;
+}
+
+.ticker-paused {
+  animation-play-state: paused;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-scroll {
+    animation: none;
+  }
+
+  .hero-slide {
+    transition: none;
+  }
+
+  .hero-slide img {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Responsive layout standards */
+.page-container {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+.section-padding {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  .section-padding {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.form-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.625rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--blue);
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.625rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--blue);
+}
+
+.admin-table-scroll {
+  overflow-x: auto;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.admin-dashboard-hero {
+  box-shadow: 0 4px 14px -4px rgb(0 0 0 / 0.12);
+}
+
+@media (min-width: 640px) {
+  .admin-table-scroll {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

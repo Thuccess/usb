@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: moictusb-api
+    runtime: node
+    rootDir: Backend
+    buildCommand: npm install && npm run build --workspace=@moictusb/shared && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
