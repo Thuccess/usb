@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SiteLogo from '@/components/SiteLogo';
+import SocialLinks from '@/components/SocialLinks';
 import { GOVERNOR_OFFICE_TITLE } from '@/lib/constants';
 import {
   MapPin,
@@ -106,6 +107,11 @@ export default function Footer({ contact }: FooterProps) {
                 </a>
               </p>
             </address>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <span className="text-sm font-medium text-white/80">Follow us</span>
+              <SocialLinks tone="dark" size="sm" />
+            </div>
           </div>
 
           <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-8">

@@ -11,11 +11,13 @@ import articleRoutes from './routes/articles';
 import adminRoutes from './routes/admin';
 import publicRoutes from './routes/public';
 import mediaRoutes from './routes/media';
+import { resolvePort } from './utils/port';
 
 dotenv.config({ override: true });
 
 const app = express();
-const PORT = process.env.API_PORT || 4000;
+const requestedPort = resolvePort(process.env.API_PORT || process.env.PORT);
+const host = process.env.API_HOST || '0.0.0.0';
 
 app.use(helmet());
 app.use(
@@ -49,11 +51,31 @@ app.use(errorHandler);
 
 async function start() {
   await connectDatabase();
-  app.listen(PORT, () => {
-    console.log(`API server running on http://localhost:${PORT}`);
-  });
+
+  const listenOnPort = (port: number) => {
+    const server = app.listen(port, host, () => {
+      console.log(`API server running on http://${host}:${port}`);
+    });
+
+    server.on('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'EADDRINUSE' && port === requestedPort) {
+        const fallbackPort = port + 1;
+        console.warn(`Port ${port} is already in use. Trying ${fallbackPort} instead.`);
+        listenOnPort(fallbackPort);
+        return;
+      }
+
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    });
+  };
+
+  listenOnPort(requestedPort);
 }
 
-start().catch(console.error);
+start().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});
 
 export default app;

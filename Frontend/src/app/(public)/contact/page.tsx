@@ -3,6 +3,8 @@ import { getSettings } from '@/lib/api';
 import PageHero from '@/components/layout/PageHero';
 import PageSection from '@/components/layout/PageSection';
 import { Mail, Phone, Clock, MapPin, Facebook, Twitter, Youtube } from 'lucide-react';
+import ContactMap from '@/components/ContactMap';
+import SocialLinks from '@/components/SocialLinks';
 
 export const metadata: Metadata = {
   title: 'Contact | Unity State Bentiu Website',
@@ -31,6 +33,12 @@ export default async function ContactPage() {
     { icon: Mail, label: 'Email', value: contact.email, href: `mailto:${contact.email}` },
     { icon: Clock, label: 'Office Hours', value: contact.officeHours },
   ];
+
+  const socialPlatforms = [
+    socialLinks.facebook ? { label: 'Facebook', href: socialLinks.facebook, icon: Facebook } : null,
+    socialLinks.twitter ? { label: 'Twitter', href: socialLinks.twitter, icon: Twitter } : null,
+    socialLinks.youtube ? { label: 'YouTube', href: socialLinks.youtube, icon: Youtube } : null,
+  ].filter(Boolean) as Array<{ label: string; href: string; icon: typeof Facebook }>;
 
   return (
     <>
@@ -68,39 +76,16 @@ export default async function ContactPage() {
               </dl>
             </div>
 
-            {(socialLinks.facebook || socialLinks.twitter || socialLinks.youtube) && (
+            {socialPlatforms.length > 0 && (
               <div className="content-card p-6">
                 <h3 className="font-bold text-lg mb-4">Social Media</h3>
-                <div className="flex flex-wrap gap-3">
-                  {socialLinks.facebook && (
-                    <a href={socialLinks.facebook} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-background border border-border hover:border-primary text-sm font-medium transition-colors">
-                      <Facebook size={16} aria-hidden /> Facebook
-                    </a>
-                  )}
-                  {socialLinks.twitter && (
-                    <a href={socialLinks.twitter} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-background border border-border hover:border-primary text-sm font-medium transition-colors">
-                      <Twitter size={16} aria-hidden /> Twitter
-                    </a>
-                  )}
-                  {socialLinks.youtube && (
-                    <a href={socialLinks.youtube} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-background border border-border hover:border-primary text-sm font-medium transition-colors">
-                      <Youtube size={16} aria-hidden /> YouTube
-                    </a>
-                  )}
-                </div>
+                <SocialLinks className="gap-3" showLabels tone="light" links={socialPlatforms} />
               </div>
             )}
           </div>
 
-          <div className="content-card p-6 sm:p-8 flex flex-col items-center justify-center min-h-[240px] sm:min-h-[360px] bg-gradient-to-br from-white to-primary/10">
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
-              <MapPin size={32} className="text-primary" aria-hidden />
-            </div>
-            <p className="font-bold text-xl text-primary-dark">Bentiu, Unity State</p>
-            <p className="text-muted mt-1">South Sudan</p>
-            <span className="mt-6 inline-flex text-xs font-medium bg-white border border-border text-muted px-3 py-1.5 rounded-full">
-              Interactive map — Phase 3
-            </span>
+          <div className="w-full">
+            <ContactMap contact={contact} />
           </div>
         </div>
       </PageSection>

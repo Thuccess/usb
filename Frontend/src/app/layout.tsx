@@ -21,8 +21,9 @@ export const metadata: Metadata = {
     type: 'website',
   },
   icons: {
-    icon: '/unity-state-bentiu-logo.png',
-    apple: '/unity-state-bentiu-logo.png',
+    icon: [{ url: '/unity-state-bentiu-logo.png', type: 'image/png' }],
+    apple: [{ url: '/unity-state-bentiu-logo.png', type: 'image/png' }],
+    shortcut: '/unity-state-bentiu-logo.png',
   },
 };
 

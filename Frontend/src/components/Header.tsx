@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
-import { Menu, X, Search, MessageSquare, Bell } from 'lucide-react';
+import { Menu, X, Search, MessageSquare, Bell, ArrowRight } from 'lucide-react';
 import SiteLogo from '@/components/SiteLogo';
+import SocialLinks from '@/components/SocialLinks';
 import { GOVERNOR_NAV_LABEL, GOVERNOR_OFFICE_TITLE } from '@/lib/constants';
 
 const navItems: { href: string; label: string; title?: string }[] = [
@@ -105,8 +106,9 @@ export default function Header() {
           scrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'
         }`}
       >
-        <div className="max-w-7xl page-container h-10 flex items-center">
+        <div className="max-w-7xl page-container min-h-10 flex flex-wrap items-center justify-between gap-2 py-2">
           <span className="truncate font-medium tracking-wide">Unity State Bentiu Website</span>
+          <SocialLinks className="shrink-0" size="sm" tone="dark" />
         </div>
       </div>
 
@@ -189,21 +191,41 @@ export default function Header() {
         <>
           <button
             type="button"
-            className="xl:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
+            className="xl:hidden fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-[2px]"
             onClick={closeMobile}
             aria-label="Close menu"
           />
           <nav
             id="mobile-nav"
-            className="xl:hidden absolute left-0 right-0 top-full z-50 bg-white border-t border-border shadow-xl max-h-[min(70vh,520px)] overflow-y-auto"
+            className="xl:hidden absolute left-0 right-0 top-full z-50 bg-white border-t border-border shadow-2xl max-h-[min(78vh,620px)] overflow-y-auto"
             aria-label="Mobile navigation"
           >
-            <div className="max-w-7xl page-container py-4">
-              <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="max-w-7xl page-container py-4 sm:py-5">
+              <div className="mb-4 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-white to-primary/5 p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">
+                      Quick navigation
+                    </p>
+                    <h2 className="mt-1 text-base font-semibold text-foreground">Explore the portal</h2>
+                    <p className="mt-1 text-sm text-muted">Jump to important sections in a few taps.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeMobile}
+                    className="rounded-full border border-border bg-white p-2 text-foreground shadow-sm transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-label="Close menu"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-4 grid grid-cols-2 gap-2">
                 <Link
                   href="/notices"
                   onClick={closeMobile}
-                  className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border border-border rounded-xl hover:border-primary hover:bg-primary/10 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary hover:bg-primary/10 hover:text-primary min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <Bell size={16} aria-hidden />
                   Notices
@@ -211,13 +233,14 @@ export default function Header() {
                 <Link
                   href="/feedback"
                   onClick={closeMobile}
-                  className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <MessageSquare size={16} aria-hidden />
                   Feedback
                 </Link>
               </div>
-              <ul className="space-y-1">
+
+              <ul className="space-y-2">
                 {navItems.map((link) => {
                   const active = isActivePath(pathname, link.href);
                   return (
@@ -226,14 +249,15 @@ export default function Header() {
                         href={link.href}
                         onClick={closeMobile}
                         title={link.title}
-                        className={`flex items-center px-4 py-3.5 text-sm font-medium rounded-xl transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        className={`flex items-center justify-between rounded-2xl border px-4 py-3.5 text-sm font-medium transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                           active
-                            ? 'text-primary bg-primary/10 border-l-4 border-l-primary'
-                            : 'text-foreground hover:bg-black/5 hover:text-primary'
+                            ? 'border-primary/20 bg-primary/10 text-primary shadow-sm'
+                            : 'border-transparent bg-white text-foreground hover:border-border hover:bg-slate-50 hover:text-primary'
                         }`}
                         aria-current={active ? 'page' : undefined}
                       >
-                        {link.label}
+                        <span>{link.label}</span>
+                        <ArrowRight size={16} className={active ? 'text-primary' : 'text-muted'} aria-hidden />
                       </Link>
                     </li>
                   );
