@@ -1,0 +1,14 @@
+{
+  "name": "moictusb-monorepo",
+  "private": true,
+  "workspaces": [
+    "Frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@moictusb/web",
+    "build": "npm run build --workspace=@moictusb/web",
+    "start": "npm run start --workspace=@moictusb/web",
+    "typecheck": "npm run typecheck --workspace=@moictusb/web",
+    "lint": "npm run lint --workspace=@moictusb/web"
+  }
+}
