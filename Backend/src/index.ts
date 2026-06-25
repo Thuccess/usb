@@ -60,7 +60,12 @@ app.use(notFound);
 app.use(errorHandler);
 
 async function start() {
-  await connectDatabase();
+  try {
+    await connectDatabase();
+  } catch (error) {
+    console.warn('Continuing without a database connection so the server can still start.');
+    console.warn(error);
+  }
 
   const listenOnPort = (port: number) => {
     const server = app.listen(port, host, () => {

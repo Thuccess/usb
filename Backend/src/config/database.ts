@@ -28,13 +28,29 @@ export function getMongoUri(): string {
   return 'mongodb://localhost:27017/moictusb';
 }
 
+export function shouldSkipDatabaseConnection(env: NodeJS.ProcessEnv = process.env): boolean {
+  if (env.SKIP_DB_CONNECT === 'true' || env.SKIP_DB_CONNECT === '1') {
+    return true;
+  }
+
+  const hasMongoUri = Boolean(env.MONGODB_URI);
+  const hasMongoCredentials = Boolean(env.MONGODB_USER && env.MONGODB_PASSWORD);
+
+  return env.NODE_ENV === 'production' && !hasMongoUri && !hasMongoCredentials;
+}
+
 export async function connectDatabase(): Promise<void> {
+  if (shouldSkipDatabaseConnection()) {
+    console.warn('MongoDB connection skipped. Set MONGODB_URI or MONGODB_USER/MONGODB_PASSWORD to enable database-backed features.');
+    return;
+  }
+
   const uri = getMongoUri();
   try {
     await mongoose.connect(uri);
     console.log('Connected to MongoDB');
   } catch (error) {
-    console.error('MongoDB connection failed. Check MongoDB settings in Backend/.env');
+    console.error('MongoDB connection failed. Check MongoDB settings in Backend/.env or Render environment variables.');
     throw error;
   }
 }
