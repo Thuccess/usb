@@ -46,6 +46,14 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    message: 'MICT Unity State API is running',
+    endpoints: ['/health', '/api/public/home'],
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.json({ success: true, message: 'MICT Unity State API is running' });
 });
@@ -88,9 +96,11 @@ async function start() {
   listenOnPort(requestedPort);
 }
 
-start().catch((error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+if (require.main === module) {
+  start().catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
+}
 
 export default app;
