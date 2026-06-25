@@ -14,7 +14,12 @@ Open http://localhost:3000 (admin at `/admin`).
 
 Ensure the [Backend](../Backend) API is running and set `NEXT_PUBLIC_API_URL` in `.env.local`.
 
-## Deploy on Vercel
+## Deploy on Vercel and Render
 
-- Root directory: `Frontend`
-- Environment: `NEXT_PUBLIC_API_URL=https://your-api.onrender.com`
+- In Vercel, set these environment variables for the frontend project:
+  - `NEXT_PUBLIC_API_URL=https://your-backend.onrender.com`
+  - `NEXT_PUBLIC_SITE_URL=https://your-frontend.vercel.app`
+- In Render, set these environment variables for the backend service:
+  - `CORS_ORIGIN=https://your-frontend.vercel.app`
+  - `CORS_ORIGINS=https://your-frontend.vercel.app,https://www.your-frontend.vercel.app`
+  - `NODE_ENV=production`

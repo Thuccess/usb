@@ -12,6 +12,7 @@ import adminRoutes from './routes/admin';
 import publicRoutes from './routes/public';
 import mediaRoutes from './routes/media';
 import { resolvePort } from './utils/port';
+import { isAllowedOrigin } from './utils/cors';
 
 dotenv.config({ override: true });
 
@@ -22,8 +23,17 @@ const host = process.env.API_HOST || '0.0.0.0';
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, false);
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 app.use(morgan('dev'));
