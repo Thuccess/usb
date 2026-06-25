@@ -29,7 +29,7 @@ describe('root route', () => {
   it('returns a successful response for the root path', async () => {
     const res = await fetch(`http://127.0.0.1:${port}/`);
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as { success?: boolean };
     expect(json.success).toBe(true);
   });
 });
