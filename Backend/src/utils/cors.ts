@@ -9,6 +9,15 @@ function normalizeOrigin(origin: string): string {
   return origin.replace(/\/$/, '');
 }
 
+function isDomainMatch(origin: string, pattern: string): boolean {
+  // Pattern: *.vercel.app or *.onrender.com
+  if (pattern.includes('*')) {
+    const regex = new RegExp(`^https?://${pattern.replace('*.', '.*\\.')}`);
+    return regex.test(origin);
+  }
+  return origin === pattern;
+}
+
 export function getAllowedOrigins(env: NodeJS.ProcessEnv = process.env): string[] {
   const configuredOrigins = [env.CORS_ORIGIN, env.CORS_ORIGINS]
     .flatMap((value) =>
@@ -26,15 +35,18 @@ export function getAllowedOrigins(env: NodeJS.ProcessEnv = process.env): string[
 
 export function isAllowedOrigin(origin: string | undefined, env: NodeJS.ProcessEnv = process.env): boolean {
   if (!origin) {
-    return true;
+    return true; // Allow requests with no origin (same-origin or mobile)
   }
 
   const normalizedOrigin = normalizeOrigin(origin);
-  const allowedOrigins = getAllowedOrigins(env).map(normalizeOrigin);
+  const allowedOrigins = getAllowedOrigins(env);
 
-  if (allowedOrigins.includes(normalizedOrigin)) {
+  // Check exact matches
+  if (allowedOrigins.some((allowed) => normalizedOrigin === normalizeOrigin(allowed))) {
     return true;
   }
 
-  return /(^https?:\/\/localhost(?::\d+)?$)|(^https?:\/\/127\.0\.0\.1(?::\d+)?$)|(\.vercel\.app$)|(\.onrender\.com$)/i.test(normalizedOrigin);
+  // Check domain patterns (vercel.app, onrender.com)
+  const patterns = ['*.vercel.app', '*.onrender.com', 'localhost:*', '127.0.0.1:*'];
+  return patterns.some((pattern) => isDomainMatch(normalizedOrigin, pattern));
 }

@@ -1,56 +1,104 @@
 import mongoose from 'mongoose';
 
-const ATLAS_HOSTS = [
-  'ac-wlwqmox-shard-00-00.6a12xxy.mongodb.net:27017',
-  'ac-wlwqmox-shard-00-01.6a12xxy.mongodb.net:27017',
-  'ac-wlwqmox-shard-00-02.6a12xxy.mongodb.net:27017',
-].join(',');
+export function validateAndGetMongoUri(): string {
+  const uri = process.env.MONGODB_URI;
 
-function buildAtlasUri(user: string, password: string, database = 'moictusb'): string {
-  const encodedUser = encodeURIComponent(user);
-  const encodedPassword = encodeURIComponent(password);
-  return `mongodb://${encodedUser}:${encodedPassword}@${ATLAS_HOSTS}/${database}?ssl=true&authSource=admin&replicaSet=atlas-qbq8ti-shard-0`;
+  if (!uri) {
+    throw new Error(
+      'MONGODB_URI environment variable is required. ' +
+      'Set it to a mongodb+srv:// connection string from MongoDB Atlas.'
+    );
+  }
+
+  if (!uri.startsWith('mongodb+srv://') && !uri.startsWith('mongodb://')) {
+    throw new Error(
+      `Invalid MONGODB_URI format. Must start with "mongodb+srv://" or "mongodb://". ` +
+      `Got: "${uri.slice(0, 50)}..."`
+    );
+  }
+
+  return uri;
 }
 
-export function getMongoUri(): string {
-  if (process.env.MONGODB_URI) {
-    return process.env.MONGODB_URI;
+function extractDatabaseName(uri: string): string {
+  try {
+    // Extract database name from mongodb uri
+    // Format: mongodb+srv://user:pass@host/dbname?params or mongodb://host/dbname?params
+    const match = uri.match(/\/([^/?]+)(\?|$)/);
+    return match?.[1] || 'moictusb';
+  } catch {
+    return 'moictusb';
   }
-
-  const user = process.env.MONGODB_USER;
-  const password = process.env.MONGODB_PASSWORD;
-  const database = process.env.MONGODB_DATABASE || 'moictusb';
-
-  if (user && password) {
-    return buildAtlasUri(user, password, database);
-  }
-
-  return 'mongodb://localhost:27017/moictusb';
 }
 
-export function shouldSkipDatabaseConnection(env: NodeJS.ProcessEnv = process.env): boolean {
-  if (env.SKIP_DB_CONNECT === 'true' || env.SKIP_DB_CONNECT === '1') {
-    return true;
+function parseConnectionError(error: unknown): string {
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+
+    if (msg.includes('authentication failed') || msg.includes('bad auth')) {
+      return 'MongoDB authentication failed. Check username/password in MONGODB_URI.';
+    }
+    if (msg.includes('getaddrinfo')) {
+      return 'DNS resolution failed. Check Atlas cluster domain in MONGODB_URI.';
+    }
+    if (msg.includes('econnrefused')) {
+      return 'Connection refused. Check Atlas IP whitelist allows 0.0.0.0/0 or your IP.';
+    }
+    if (msg.includes('certificate')) {
+      return 'TLS certificate validation failed. Ensure MONGODB_URI uses correct cluster.';
+    }
+    if (msg.includes('replicaset') || msg.includes('replica set')) {
+      return 'Replica set configuration issue. Check Atlas cluster status.';
+    }
+    if (msg.includes('timeout') || msg.includes('timed out')) {
+      return 'Connection timeout. Network issue or Atlas cluster unresponsive.';
+    }
+
+    return error.message;
   }
 
-  const hasMongoUri = Boolean(env.MONGODB_URI);
-  const hasMongoCredentials = Boolean(env.MONGODB_USER && env.MONGODB_PASSWORD);
-
-  return env.NODE_ENV === 'production' && !hasMongoUri && !hasMongoCredentials;
+  return String(error);
 }
 
 export async function connectDatabase(): Promise<void> {
-  if (shouldSkipDatabaseConnection()) {
-    console.warn('MongoDB connection skipped. Set MONGODB_URI or MONGODB_USER/MONGODB_PASSWORD to enable database-backed features.');
-    return;
-  }
+  const uri = validateAndGetMongoUri();
+  const dbName = extractDatabaseName(uri);
 
-  const uri = getMongoUri();
   try {
-    await mongoose.connect(uri);
-    console.log('Connected to MongoDB');
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      retryWrites: true,
+      w: 'majority',
+      bufferCommands: false,
+    });
+
+    console.log(`✓ Connected to MongoDB: ${dbName}`);
   } catch (error) {
-    console.error('MongoDB connection failed. Check MongoDB settings in Backend/.env or Render environment variables.');
+    console.error('✗ MongoDB connection failed:', parseConnectionError(error));
     throw error;
   }
+}
+
+export function setupConnectionMonitoring(): void {
+  const connection = mongoose.connection;
+  const dbName = extractDatabaseName(process.env.MONGODB_URI || 'mongodb://unknown/unknown');
+
+  connection.on('connected', () => {
+    console.log(`✓ MongoDB connected: ${dbName}`);
+  });
+
+  connection.on('disconnected', () => {
+    console.warn('⚠ MongoDB disconnected');
+  });
+
+  connection.on('reconnecting', () => {
+    console.warn('⚠ MongoDB reconnecting...');
+  });
+
+  connection.on('error', (error) => {
+    console.error('✗ MongoDB error:', parseConnectionError(error));
+  });
 }
